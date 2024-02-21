@@ -1,3 +1,1 @@
-1. hacer click en la letra y mostrarla por pantalla
-2. Si esta en palabra mostrarla
-3. Mostrar el numero de lineas de acuerdo al numero de letras de la palabra
+1. Cuando se falle una letra empezar a dibujar el ahorcado
