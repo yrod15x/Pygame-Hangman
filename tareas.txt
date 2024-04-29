@@ -1,1 +1,6 @@
-1. Cuando se falle una letra empezar a dibujar el ahorcado
+
+2. Usar un sonido de error para que el usuario sepa que ya uso esa letra.
+3. Cuando se adivine la palabra poner la imagen en el espacio del teclado de letras.
+4. Poner dos botones next y exit para que el usuario haga click
+5. Poner el score por pantalla
+6. Creae Menu de inicio con las categoriad a escoger  y pantalla final

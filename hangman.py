@@ -11,6 +11,7 @@ WIDTH = 800
 HEIGHT = 600
 BLANCO = (255, 255, 255)
 BLACK = (0, 0, 0)
+VERDE = (0, 255, 0)
 COLOR = (12, 67, 125)
 FOND_TEXTO = (125, 65, 12)
 estado = 'started'
@@ -25,11 +26,16 @@ letras_usadas = set()
 letra_pulsada = ''
 
 letras = cargar_imagenes()
+next_btn = pygame.image.load('button_next.png').convert_alpha()
+exit_btn = pygame.image.load('button_exit.png').convert_alpha()
+used_btn = pygame.image.load('button_used_letters.png').convert_alpha()
 letras_rects = []
 padding = 75
 padding_top = 50
 top_limit = 260
 errores = 0
+div_let_usadas = 4
+str_let_usadas = ''
 
 while True:
     ventana.fill(BLANCO)
@@ -38,7 +44,17 @@ while True:
         #Muestra los espacios en pantalla. De acuerdo al largo de la palabra de debe ajustar la poscion de inicio para que quede esteticamente organizada 
         espacios = texto_pantalla(" ".join(palabra_espacios), COLOR, BLANCO, (WIDTH // 2), (HEIGHT // 2 - 100), 65)
         ventana.blit(espacios[0], espacios[1])
-    
+        ventana.blit(used_btn, (560,20))
+        #Se colocan las letras usadas en pantalla cuando lleguen a cierto tamano
+        #se hace un salto de linea
+        str_let_usadas = list(letras_usadas)
+        str_let_usadas.sort()
+        if len(str_let_usadas) > 8:
+            str_let_usadas.insert(7, '\n')
+            str_let_usadas.insert(7, '\n')
+        imprimir_multilinea("".join(str_let_usadas), 590, 60, 30, ventana, BLACK, VERDE)
+        #print(str_let_usadas)
+        
         for i in range(26):
             #Cada if representa una linea del teclado. Padding lo multiplo por i para que vaya espaciando la letras hacia la derecha
             if i < 7:
@@ -106,8 +122,12 @@ while True:
                         #patibulo y el ahorcado una por una. 
                         errores += 1
                         letras_usadas.add(letra_pulsada)
-                elif letras_rects[i].collidepoint(pygame.mouse.get_pos()) and letra_pulsada in letras_usadas:            
+                elif letras_rects[i].collidepoint(pygame.mouse.get_pos()) and letra_pulsada in letras_usadas:
+                    #agregar sonido            
                     print("Letra registrada")
-                                                  
+                    
+    if palabra_actual == "".join(palabra_espacios):
+        ventana.blit(next_btn,((WIDTH //2) - 50, (HEIGHT // 2) - 270))
+        ventana.blit(exit_btn,((WIDTH //2) - 50, (HEIGHT // 2) - 220))                                       
     pygame.display.update()
     fpsclock.tick(FPS)

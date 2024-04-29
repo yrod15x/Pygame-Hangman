@@ -27,3 +27,10 @@ def extraer_rects_img(imagen, pos_x, pos_y):
     #Topleft permite abarcar toda la superfice del btn cuando se presiona. No usar center
     rect = imagen.get_rect(topleft=(pos_x, pos_y)) 
     return rect 
+
+def imprimir_multilinea(texto, posX, posY, tam_fuente, pantalla, color_fuente, color_fondo):
+    lineas = texto.splitlines()
+    for index, valor in enumerate(lineas):
+        fuente  = pygame.font.SysFont('Verdana', tam_fuente)
+        #si no se pone color de fondo como como 3er parametro en la funcion render el texto sale sin frame
+        pantalla.blit(fuente.render(valor, 1, color_fuente, color_fondo), (posX, posY + tam_fuente * index))
