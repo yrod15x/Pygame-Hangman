@@ -15,15 +15,15 @@ VERDE = (0, 255, 0)
 COLOR = (12, 67, 125)
 FOND_TEXTO = (125, 65, 12)
 estado = 'started'
+score = 0
 
 ventana = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("HANGMAN")
 
 animales = ['gato', 'perro', 'leon', 'tigre', 'cocodrilo']
-palabra_actual = escoger_palabra(animales)
-palabra_espacios = ['_' for i in range(len(palabra_actual))]
 letras_usadas = set()
 letra_pulsada = ''
+juego = 'on'
 
 letras = cargar_imagenes()
 next_btn = pygame.image.load('button_next.png').convert_alpha()
@@ -41,6 +41,12 @@ while True:
     ventana.fill(BLANCO)
     # Imprimo en pantallas las letras. Como son imagenes debo sacarles su rectangulo y posicion para que se usen como botones. (Presionar ejecuten algo) - Funcion extraer_rects_img() empieza a llenar una lista con los rectangulos de cada imagen
     if estado == 'started':
+        if juego == 'on':
+            palabra_actual = escoger_palabra(animales)
+            palabra_espacios = ['_' for i in range(len(palabra_actual))]
+            juego = 'off'
+        if palabra_actual == "".join(palabra_espacios):
+            estado = 'finished'
         #Muestra los espacios en pantalla. De acuerdo al largo de la palabra de debe ajustar la poscion de inicio para que quede esteticamente organizada 
         espacios = texto_pantalla(" ".join(palabra_espacios), COLOR, BLANCO, (WIDTH // 2), (HEIGHT // 2 - 100), 65)
         ventana.blit(espacios[0], espacios[1])
@@ -52,8 +58,11 @@ while True:
         if len(str_let_usadas) > 8:
             str_let_usadas.insert(7, '\n')
             str_let_usadas.insert(7, '\n')
-        imprimir_multilinea("".join(str_let_usadas), 590, 60, 30, ventana, BLACK, VERDE)
-        #print(str_let_usadas)
+        imprimir_multilinea("".join(str_let_usadas), 590, 60, 25, ventana, BLACK, BLANCO)
+        
+        #imprimir score
+        score_text = texto_pantalla(str(score), BLACK, BLANCO, WIDTH // 2 - 10, 37, 40)
+        ventana.blit(score_text[0], score_text[1])
         
         for i in range(26):
             #Cada if representa una linea del teclado. Padding lo multiplo por i para que vaya espaciando la letras hacia la derecha
@@ -71,7 +80,7 @@ while True:
                 letras_rects.append(extraer_rects_img(letras[i],(WIDTH // 2  + (padding * (i - 21)) - 185), HEIGHT // 2 + padding_top  + 140))
                 
         #Dibuja el patibulo y el ahorcado cada vez que sea presione la tecla incorrecta
-        if errores >= 1:
+        if errores >= 1 and estado != 'finished':
             pygame.draw.line(ventana, (BLACK), (70, HEIGHT // 2 - 120), (170, HEIGHT // 2 - 120),5)
         if errores >= 2:
             pygame.draw.line(ventana, (BLACK), (70, HEIGHT // 2 - 120), (70, 40),5)
@@ -102,11 +111,11 @@ while True:
             #Ya las imagenes tienen su rectangulo que permite verificar si el mouse se presiono sobre ellas. Al presionar una tecla se mira si la esa letra esta en la palabra
             for i in range(26):
                 letra_pulsada = chr(i + 97)
-                     
                 if letras_rects[i].collidepoint(pygame.mouse.get_pos()) and letra_pulsada not in letras_usadas:
                     #Si la letra esta una sola vez en la palabra se busca su indice 
                     if palabra_actual.count(letra_pulsada) > 0:
                         letras_usadas.add(letra_pulsada)
+                        score += 10
                     if palabra_actual.count(letra_pulsada) == 1:
                         if letra_pulsada in palabra_actual:
                             palabra_espacios[palabra_actual.find(letra_pulsada)] = letra_pulsada
@@ -125,9 +134,31 @@ while True:
                 elif letras_rects[i].collidepoint(pygame.mouse.get_pos()) and letra_pulsada in letras_usadas:
                     #agregar sonido            
                     print("Letra registrada")
-                    
-    if palabra_actual == "".join(palabra_espacios):
-        ventana.blit(next_btn,((WIDTH //2) - 50, (HEIGHT // 2) - 270))
-        ventana.blit(exit_btn,((WIDTH //2) - 50, (HEIGHT // 2) - 220))                                       
+        if event.type == pygame.MOUSEBUTTONDOWN and estado == 'finished':
+            #Si se hace click en salir o siguiente - Sacar el rect de la imagen
+            exit_btn_rect = extraer_rects_img(exit_btn, (WIDTH //2) - 70, (HEIGHT // 2) - 220)
+            next_btn_rect = extraer_rects_img(next_btn, (WIDTH //2) - 70, (HEIGHT // 2) - 270)
+            if exit_btn_rect.collidepoint(pygame.mouse.get_pos()):
+                pygame.quit()
+                sys.exit()
+            elif next_btn_rect.collidepoint(pygame.mouse.get_pos()):
+                estado = 'started'
+                juego = 'on'
+                letras_usadas = set()
+                letra_pulsada = ''
+                        
+    #Imprimir en pantalla un resumen del juego
+    if estado == 'finished':
+        ventana.blit(next_btn,((WIDTH //2) - 70, (HEIGHT // 2) - 270))
+        ventana.blit(exit_btn,((WIDTH //2) - 70, (HEIGHT // 2) - 220))
+        ventana.blit(used_btn, (560,30))
+        imprimir_multilinea("".join(str_let_usadas), 590, 80, 20, ventana, BLACK, BLANCO)
+        pal_score = texto_pantalla("Score", BLACK, BLANCO, 120, 40, 35)
+        ventana.blit(pal_score[0], pal_score[1])
+        score_text[1] = (95, 60)
+        ventana.blit(score_text[0], score_text[1])
+        palabra_actual_rect = texto_pantalla(palabra_actual, VERDE, BLANCO, (WIDTH // 2) - 10, (HEIGHT // 2), 100)
+        ventana.blit(palabra_actual_rect[0], palabra_actual_rect[1])
+                                               
     pygame.display.update()
     fpsclock.tick(FPS)
