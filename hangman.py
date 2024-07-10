@@ -1,7 +1,6 @@
 #Programa que simula el juego del ahorcado. 
 
 import pygame, sys
-
 from funciones import *
 
 pygame.init()
@@ -42,6 +41,7 @@ errores = 0
 div_let_usadas = 4
 str_let_usadas = ''
 musica_fondo = pygame.mixer.Sound('musicafondo.mp3')
+incorrecto = pygame.mixer.Sound('sonidoincorrecto.mp3')
 
 while True:
     ventana.fill(BLANCO)
@@ -146,9 +146,11 @@ while True:
                         #patibulo y el ahorcado una por una. 
                         errores += 1
                         letras_usadas.add(letra_pulsada)
+                        incorrecto.play()
                 elif letras_rects[i].collidepoint(pygame.mouse.get_pos()) and letra_pulsada in letras_usadas:
-                    #agregar sonido            
-                    print("Letra registrada")
+                    #agregar sonido  
+                    incorrecto.play()          
+                    #print("Letra registrada")
         if event.type == pygame.MOUSEBUTTONDOWN and estado == 'finished':
             #Si se hace click en salir o siguiente - Sacar el rect de la imagen
             exit_btn_rect = extraer_rects_img(exit_btn, (WIDTH //2) - 70, (HEIGHT // 2) - 220)
