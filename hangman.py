@@ -1,6 +1,7 @@
 #Programa que simula el juego del ahorcado. 
 
 import pygame, sys
+
 from funciones import *
 
 pygame.init()
@@ -14,7 +15,8 @@ BLACK = (0, 0, 0)
 VERDE = (0, 255, 0)
 COLOR = (12, 67, 125)
 FOND_TEXTO = (125, 65, 12)
-estado = 'started'
+menuFondo = pygame.image.load('menufondo1.png')
+estado = 'unstarted'
 score = 0
 
 ventana = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -29,6 +31,9 @@ letras = cargar_imagenes()
 next_btn = pygame.image.load('button_next.png').convert_alpha()
 exit_btn = pygame.image.load('button_exit.png').convert_alpha()
 used_btn = pygame.image.load('button_used_letters.png').convert_alpha()
+start_btn = pygame.image.load('button_start.png').convert_alpha()
+#convierto la imagen en rect para poder hacer click en ella -> collidepoint(mouse.get_pos())
+rect_start_btn = extraer_rects_img(start_btn, WIDTH //2 - 85, HEIGHT // 2 + 40)
 letras_rects = []
 padding = 75
 padding_top = 50
@@ -36,6 +41,7 @@ top_limit = 260
 errores = 0
 div_let_usadas = 4
 str_let_usadas = ''
+musica_fondo = pygame.mixer.Sound('musicafondo.mp3')
 
 while True:
     ventana.fill(BLANCO)
@@ -102,12 +108,21 @@ while True:
             pygame.draw.line(ventana, (BLACK), (120, 150), (105, 170), 5) 
         if errores >= 10:
             estado = 'finished'     
-    
+    elif estado == 'unstarted':
+        ventana.blit(menuFondo, (0, 0))
+        ventana.blit(start_btn, (WIDTH //2 - 85, HEIGHT // 2 + 40))
+        musica_fondo.play(-1)
+        musica_fondo.set_volume(0.5)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN and estado == 'started':
+        #comenzar el juego presionando el boton start. 
+        if event.type == pygame.MOUSEBUTTONDOWN and estado == 'unstarted':
+            if rect_start_btn.collidepoint(pygame.mouse.get_pos()):
+                estado = 'started'
+                musica_fondo.stop()
+        elif event.type == pygame.MOUSEBUTTONDOWN and estado == 'started':
             #Ya las imagenes tienen su rectangulo que permite verificar si el mouse se presiono sobre ellas. Al presionar una tecla se mira si la esa letra esta en la palabra
             for i in range(26):
                 letra_pulsada = chr(i + 97)
